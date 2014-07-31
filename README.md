@@ -16,7 +16,7 @@
 - AutoNProxy 是基于nginx的反向代理(v0.0.3)
 - Win-Ecdn 是基于win的squid的缓存服务器(v0.1)
 - Win-Ecdn-Manager 是Win-Ecdn的一个管理工具(v0.2)
-- AutoPPN 是基于Percona+php-fastcgi+nginx的动态web服务器(v0.0.9)
+- AutoPPN 是基于Percona+php-fastcgi+nginx的动态web服务器(el5-v0.1.0 el6-v0.0.8)
 - AutoAPP 是基于apache+percona+php的动态web服务器,为centos6下脚本(v0.0.1)
 - AutoStack 是基于openstack essex自动安装脚本，脚本在ubuntu12.04下使用,多节点版（v0.0.3）
 - AutoMail 是基于postfix+extmail的一个企业级mail系统(v0.0.2)
