@@ -21,7 +21,7 @@ elif [ "`uname -m`" == "i686" ]; then
 rpm -Uhv http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.i686.rpm
 rpm -Uvh http://mirrors.ustc.edu.cn/epel/6/i386/epel-release-6-7.noarch.rpm
 fi
-yum -y install cmake bison bison-devel patch make gcc gcc-c++ libtool libtool-libs libart_lgpl libart_lgpl-devel autoconf libjpeg libjpeg-devel libpng libpng-devel fontconfig fontconfig-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel nss_ldap openldap-clients openldap-servers
+yum -y install unzip cmake bison bison-devel patch make gcc gcc-c++ libtool libtool-libs libart_lgpl libart_lgpl-devel autoconf libjpeg libjpeg-devel libpng libpng-devel fontconfig fontconfig-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel nss_ldap openldap-clients openldap-servers
 yum install axel -y
 }
 
@@ -29,6 +29,12 @@ download() {
 echo "Download soft..."
 if [ ! -s mysql-5.6.17.tar.gz ]; then
 axel -n 10 http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.17.tar.gz
+fi
+if [ -s /etc/my.cnf ]; then
+mv /etc/my.cnf /etc/my.cnf.auto
+fi
+if [ -s /etc/init.d/mysql ]; then
+mv /etc/init.d/mysql /etc/init.d/mysql.auto
 fi
 }
 
