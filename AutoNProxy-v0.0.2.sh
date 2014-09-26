@@ -29,11 +29,11 @@ download() {
 
 	echo "Download soft..."
 	wget  http://sysoev.ru/nginx/nginx-1.0.0.tar.gz
-	wget  http://autosetup1.googlecode.com/files/pcre-8.01.tar.gz
-	wget  http://autosetup1.googlecode.com/files/proxy.conf
-	wget  http://autosetup1.googlecode.com/files/run.sh
-	wget  http://autosetup1.googlecode.com/files/stop.sh
-	wget  http://autosetup1.googlecode.com/files/nginx1.conf
+	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/pcre-8.01.tar.gz
+	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/proxy.conf
+	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/run.sh
+	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/stop.sh
+	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/nginx1.conf
 }
 
 nginx() {
