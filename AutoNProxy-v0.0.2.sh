@@ -28,7 +28,7 @@ base() {
 download() {
 
 	echo "Download soft..."
-	wget  http://sysoev.ru/nginx/nginx-1.6.0.tar.gz
+	wget  http://nginx.org/download/nginx-1.6.0.tar.gz
 	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/pcre-8.01.tar.gz
 	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/proxy.conf
 	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/run.sh
