@@ -34,6 +34,7 @@ download() {
 	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/run.sh
 	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/stop.sh
 	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/nginx1.conf
+	wget http://www.openssl.org/source/openssl-1.0.0d.tar.gz
 }
 
 nginx() {
@@ -48,9 +49,10 @@ nginx() {
 	make ;make install
 	cd ../
 
-	tar zxvf nginx-1.0.0.tar.gz
-	cd nginx-1.0.0
-	./configure --user=webadm --group=webadm --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module
+	tar zxvf openssl-1.0.0d.tar.gz
+	tar zxvf nginx-1.6.0.tar.gz
+	cd nginx-1.6.0
+	./configure --user=webadm --group=webadm --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-openssl=../openssl-1.0.0d/
 	make; make install
 	cd ../
 }
