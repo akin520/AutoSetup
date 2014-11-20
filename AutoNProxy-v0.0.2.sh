@@ -34,7 +34,7 @@ download() {
 	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/run.sh
 	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/stop.sh
 	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/nginx1.conf
-	wget http://www.openssl.org/source/openssl-1.0.0d.tar.gz
+	wget --no-check-certificate https://sourceforge.net/projects/autosetup/files/soft/openssl-1.0.0d.tar.gz
 }
 
 nginx() {
