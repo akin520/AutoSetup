@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+#	RPM-build-tree.txt
+#		also called: fedora-buildrpmtree
+#
+#	Set up a 'plain userid' SRPM build environment
+#
+#		Home locale for this script:
+#	/hintskinks/buildtree/RPM-build-tree.txt
+#		also: ftp://ftp.owlriver.com/pub/local/ORC/rpmbuild/
+#
+#	See also: http://freshrpms.net/docs/fight.html
+#
+#		based on a post:
+#	Date: Tue, 30 Jul 2002 17:00:21 +0200
+#	From: Ralf Ertzinger <ralf@camperquake.de>
+#	Reply-To: rpm-list@freshrpms.net
+#
+VER="0.06-050418"
+#	copyright (c) 2002 Owl River Company - Columbus OH
+#	info@owlriver.com -- GPL v.2 
+#
+#	rev 0.06 050418 RPH - change topdir to a version not needing 
+#		rpm to expand a shell script to determine the home 
+#		directory - $ HOMEDIR - so that:
+#			rpm --showrc | grep top
+#		passes the sanity test in sub-shells better
+#	rev 0.05 030814 RPH -- apply NIS extension per 
+#			nate at rj1.org (Nathan Owen)
+#		https://bugzilla.fedora.us/show_bug.cgi?id=594
+#	rev 0.04 030422 RPH -- change to vendor neutral 'rpmbuild' 
+#		path element
+#	rev 0.03 021210 RPH -- put the home in the right place 
+#		automatically
+#	rev 0.02 021207 RPH -- add %make macro for people using 
+#		Mandrake .spec files on non-Mandrake platforms
+#	initial 0.01 020731 RPH - initial release
+#
+[ "x$1" = "x-d" ] && {
+	DEBUG="y"
+	export DEBUG
+	shift 1
+	}
+#
+IAM=`id -un`
+# 	returns bare username
+#
+PASSWDDIR=`grep ^$IAM: /etc/passwd | awk -F":" '{print $6}'`
+HOMEDIR=${HOME:=$PASSWDDIR}
+[ ! -d $HOMEDIR ] && {
+	echo "ERROR: Home directory for user $IAM not found in /etc/passwd."
+	exit 1
+	}
+#	and home directory
+#
+#
+RHDIR="$HOMEDIR/rpmbuild"
+#
+RPMMACROS="$HOMEDIR/.rpmmacros"
+touch $RPMMACROS
+#
+TOPDIR="%_topdir"
+ISTOP=`grep -c ^$TOPDIR $RPMMACROS`
+[ $ISTOP -lt 1 ] && {
+	echo "%_topdir      $HOMEDIR/rpmbuild" >> $RPMMACROS
+	}
+#
+MAKE="%make "
+ISTOP=`grep -c ^$MAKE $RPMMACROS`
+[ $ISTOP -lt 1 ] && {
+	echo "$MAKE  make" >> $RPMMACROS
+	}
+#
+[ "x$DEBUG" != "x" ] && {
+	echo "$IAM       $HOMEDIR    $RPMMACROS"
+	echo "$RHDIR     $TOPDIR     $ISTOP"
+	}
+#
+[ ! -d $RHDIR ] && mkdir -p $RHDIR
+cd $RHDIR 
+for i in RPMS SOURCES SPECS SRPMS BUILD ; do 
+	[ ! -d ./$i ] && mkdir ./$i 
+done
+#
+exit 0
+#
