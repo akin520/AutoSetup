@@ -72,6 +72,10 @@ config() {
 	sed -i '3d' /root/run.sh
 	sed -i '2d' /root/stop.sh 
 	chmod 755 /root/*.sh
+	cat /etc/rc.local|grep run
+	if [[ $? == 1 ]];then
+	echo "/root/run.sh" >>/etc/rc.local
+	fi
 }
 
 msg() {
