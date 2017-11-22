@@ -1,0 +1,28 @@
+---
+- name: copy k8s repo
+  copy: src=virt7-docker-common-release.repo dest=/etc/yum.repos.d/virt7-docker-common-release.repo
+
+- name: yum docker flannel etcd
+  yum: name={{ item }} state=present
+  with_items:
+    - "docker"
+    - "flannel"
+    - "etcd-3.2.5"
+
+- name: copy etcd config
+  template: src=etcd.conf dest=/etc/etcd/etcd.conf
+
+- name: run etcd
+  shell: systemctl daemon-reload && systemctl enable etcd && systemctl restart etcd
+ 
+- name: etcd flannel network
+  shell: etcdctl mkdir /k8s/network && etcdctl set /k8s/network/config '{"Network":"172.200.0.0/16"}'
+
+- name: copy flannel config
+  template: src=flanneld dest=/etc/sysconfig/flanneld
+
+- name: run flanneld
+  shell: systemctl daemon-reload && systemctl enable flanneld && systemctl restart flanneld
+
+- name: run dockerd
+  shell: systemctl daemon-reload && systemctl enable docker && systemctl restart docker

@@ -1,0 +1,21 @@
+---
+- name: copy k8s repo
+  copy: src=virt7-docker-common-release.repo dest=/etc/yum.repos.d/virt7-docker-common-release.repo
+
+- name: install k8s 
+  shell: yum -y install --enablerepo=virt7-docker-common-release kubernetes
+
+- name: copy /etc/kubernetes/config
+  template: src=config dest=/etc/kubernetes/config
+
+- name: copy /etc/kubernetes/apiserver
+  template: src=apiserver dest=/etc/kubernetes/apiserver
+
+- name: copy /etc/kubernetes/kubelet
+  template: src=kubelet dest=/etc/kubernetes/kubelet
+
+- name: enable k8s
+  shell: systemctl daemon-reload && systemctl enable kube-apiserver kube-controller-manager kube-scheduler kubelet kube-proxy 
+
+- name: run k8s
+  shell: systemctl restart kube-apiserver kube-controller-manager kube-scheduler kubelet kube-proxy

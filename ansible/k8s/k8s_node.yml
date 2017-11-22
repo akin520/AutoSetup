@@ -1,0 +1,5 @@
+---
+#http://blog.csdn.net/gbenson/article/details/50510676
+- hosts: 192.168.2.133
+  roles:
+    - k8s_node

@@ -1,0 +1,7 @@
+[init]
+192.168.2.130 hostname=server130
+192.168.2.133 hostname=server133
+[init:vars]
+ansible_ssh_user=root
+ansible_ssh_pass=k8s.com
+ansible_ssh_port=22

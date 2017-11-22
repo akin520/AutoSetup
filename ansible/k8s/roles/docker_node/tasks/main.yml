@@ -1,0 +1,18 @@
+---
+- name: copy k8s repo
+  copy: src=virt7-docker-common-release.repo dest=/etc/yum.repos.d/virt7-docker-common-release.repo
+
+- name: yum docker flannel etcd
+  yum: name={{ item }} state=present
+  with_items:
+    - "docker"
+    - "flannel"
+
+- name: copy flannel config
+  template: src=flanneld dest=/etc/sysconfig/flanneld
+
+- name: run flanneld
+  shell: systemctl daemon-reload && systemctl enable flanneld && systemctl restart flanneld
+
+- name: run dockerd
+  shell: systemctl daemon-reload && systemctl enable docker && systemctl restart docker

@@ -1,0 +1,42 @@
+---
+- name: yum libselinux-python
+  yum: name=libselinux-python state=present
+
+- name: yum python-lxml
+  yum: name=python-lxml state=present
+
+- name: disable selinux
+  lineinfile: dest=/etc/selinux/config state=present regexp='^SELINUX=' line='SELINUX=disabled'
+
+- name: yum ntp
+  yum: name=ntp state=present
+
+- name: add ntp crontab
+  lineinfile: dest=/etc/crontab state=present regexp='ntpdate' line='{{item}}'
+  with_items:
+    - "0 * * * * root /usr/sbin/ntpdate 0.pool.ntp.org"
+
+- name: add rc.local
+  lineinfile: dest=/etc/rc.local state=present line='{{item}}'
+  with_items:
+    - "#k8s"
+    - "echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables"
+    - "echo 1 > /proc/sys/net/bridge/bridge-nf-call-ip6tables"
+
+- name: limits.conf
+  lineinfile: dest=/etc/security/limits.conf state=present line='*               -       nofile          65535'
+
+- name: limits.conf two
+  lineinfile: dest=/etc/security/limits.d/20-nproc.conf state=present line='* soft nproc 65535'
+
+- name: disable fw
+  shell: systemctl disable firewalld && systemctl stop firewalld
+
+- name: yum iptables
+  shell: yum -y install iptables iptables-services && systemctl start iptables && systemctl enable iptables
+
+- name: clear iptables
+  shell: iptables -F && iptables -F -t nat && service iptables save
+
+
+
