@@ -21,4 +21,4 @@
 - AutoStack 是基于openstack essex自动安装脚本，脚本在ubuntu12.04下使用,多节点版（v0.0.3）
 - AutoMail 是基于postfix+extmail的一个企业级mail系统(v0.0.2)
 - AutoCProxy 是基于nginx+cache+proxy (v0.0.1)
-- ansible   自动华安装k8s 1.5.2yum安装脚本
+- ansible   自动化安装k8s 1.5.2yum安装脚本
