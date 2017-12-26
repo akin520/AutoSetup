@@ -4,7 +4,7 @@
 ##版本号
 - AutoIM_Porxy 是基于squid的，自动安装的http代理，可用于QQ等IM软件 (v1.0.1)
 - AutoSVN 是基于apache+subversion+viewve的版本控制工具 (v0.1.1)
-- AutoVPN 是基于pptp+freeradius+mysql的，可用WEB管理(v1.0.0)
+- AutoVPN 是基于pptp+freeradius+mysql的，可用WEB管理(el5-v1.0.0 el6-v1.0.1)
 - AutoCDN 是基于easy-cdn所做的自运安装版，详细见easy-cdn站点 (v1.0.5)
 - AutoMPN 是基于mysql+php+nginx的动态web服务器,专为小内存优化 (v0.0.5)
 - AutoMAP 是基于mysql+apache+php的动态WEB服器.(v0.2.3)
@@ -21,4 +21,4 @@
 - AutoStack 是基于openstack essex自动安装脚本，脚本在ubuntu12.04下使用,多节点版（v0.0.3）
 - AutoMail 是基于postfix+extmail的一个企业级mail系统(v0.0.2)
 - AutoCProxy 是基于nginx+cache+proxy (v0.0.1)
-- k8s 是k8s 1.5.2yum安装脚本
+- ansible   自动华安装k8s 1.5.2yum安装脚本
