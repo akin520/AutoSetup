@@ -1,0 +1,47 @@
+#!/bin/bash
+if [[ ! -f /opt/ssl/token.lock ]];then
+cd /opt/ssl/
+kubectl create clusterrolebinding kube-apiserver:kubelet-apis --clusterrole=system:kubelet-api-admin --user kubernetes
+{% for h in groups['docker'] %}
+{{hostvars[h]['hostname']}}=`kubeadm token create --description kubelet-bootstrap-token --groups system:bootstrappers:{{hostvars[h]['hostname']}} --kubeconfig ~/.kube/config`
+kubectl config set-cluster kubernetes \
+  --certificate-authority=/etc/kubernetes/ssl/ca.pem \
+  --embed-certs=true \
+  --server=https://127.0.0.1:6443 \
+  --kubeconfig={{ h }}.kubeconfig
+kubectl config set-credentials kubelet-bootstrap \
+  --token=${{hostvars[h]['hostname']}} \
+  --kubeconfig={{ h }}.kubeconfig
+kubectl config set-context default \
+  --cluster=kubernetes \
+  --user=kubelet-bootstrap \
+  --kubeconfig={{ h }}.kubeconfig
+kubectl config use-context default --kubeconfig={{ h }}.kubeconfig
+{% endfor %}
+kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --group=system:bootstrappers
+kubectl apply -f /etc/kubernetes/tls-instructs-csr.yaml
+kubectl create clusterrolebinding node-client-auto-approve-csr --clusterrole=system:certificates.k8s.io:certificatesigningrequests:nodeclient --group=system:bootstrappers
+kubectl create clusterrolebinding node-client-auto-renew-crt --clusterrole=system:certificates.k8s.io:certificatesigningrequests:selfnodeclient --group=system:nodes
+kubectl create clusterrolebinding node-server-auto-renew-crt --clusterrole=system:certificates.k8s.io:certificatesigningrequests:selfnodeserver --group=system:nodes
+
+#kube-proxy
+kubectl config set-cluster kubernetes \
+  --certificate-authority=/etc/kubernetes/ssl/ca.pem \
+  --embed-certs=true \
+  --server=https://127.0.0.1:6443 \
+  --kubeconfig=kube-proxy.kubeconfig
+
+kubectl config set-credentials kube-proxy \
+  --client-certificate=/etc/kubernetes/ssl/kube-proxy.pem \
+  --client-key=/etc/kubernetes/ssl/kube-proxy-key.pem \
+  --embed-certs=true \
+  --kubeconfig=kube-proxy.kubeconfig
+
+kubectl config set-context default \
+  --cluster=kubernetes \
+  --user=kube-proxy \
+  --kubeconfig=kube-proxy.kubeconfig
+
+kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
+touch /opt/ssl/token.lock
+fi

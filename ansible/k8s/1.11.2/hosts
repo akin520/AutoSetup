@@ -1,0 +1,20 @@
+[etcd]
+192.168.20.209 hostname=etcd1
+192.168.20.211 hostname=etcd2
+192.168.20.213 hostname=etcd3
+
+[cert]
+192.168.20.209 hostname=ym209
+
+[master]
+192.168.20.209 hostname=ym209
+192.168.20.211 hostname=ym211
+192.168.20.213 hostname=ym213
+
+[node]
+192.168.20.210 hostname=ym210
+192.168.20.212 hostname=ym212
+
+[docker:children]
+master
+node

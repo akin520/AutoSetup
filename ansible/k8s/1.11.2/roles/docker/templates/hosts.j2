@@ -1,0 +1,3 @@
+{% for h in groups['docker'] %}
+{{ h }}    {{hostvars[h]['hostname']}}
+{% endfor %}

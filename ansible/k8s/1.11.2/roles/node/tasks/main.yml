@@ -1,0 +1,97 @@
+---
+- name: yum epel
+  yum: name=epel-release state=present
+
+- name: yum libselinux-python
+  yum: name=libselinux-python state=present
+
+- name: ipvs
+  shell: yum install ipset ipvsadm conntrack-tools.x86_64 -y && touch /etc/modprobe.d/ipvs.conf 
+
+- name: ipvs config
+  lineinfile: dest=/etc/modprobe.d/ipvs.conf line='options ip_vs conn_tab_bits=22'
+
+- name: copy k8s file
+  copy: src={{item}} dest=/usr/local/bin/{{item}} mode=755 owner=root group=root
+  with_items:
+    - "kubectl"
+    - "kube-proxy"
+    - "kubelet"
+
+- name: make k8s dir
+  file: path=/etc/kubernetes/ssl state=directory
+
+- name: copy ssl
+  copy: src=/opt/ssl/{{item}} dest=/etc/kubernetes/ssl/{{item}}
+  with_items:
+    - "ca.csr"
+    - "ca-key.pem"
+    - "ca.pem"
+    - "etcd-key.pem"
+    - "etcd.pem"
+    - "admin-key.pem"
+    - "admin.pem"
+    - "kube-proxy-key.pem"
+    - "kube-proxy.pem"
+    - "kubernetes-key.pem"
+    - "kubernetes.pem"
+
+- name: ls /var/log/kubernetes/
+  shell: /bin/ls /var/log/kubernetes/
+  register: result_kubernetes
+  ignore_errors: True
+
+- name: mkdir k8s log dir
+  shell: mkdir -p /var/log/kubernetes/
+  when: result_kubernetes.rc != 0
+
+- name: copy bootstrap.kubeconfig
+  copy: src=/opt/ssl/{{inventory_hostname}}.kubeconfig dest=/etc/kubernetes/bootstrap.kubeconfig mode=644
+
+- name: mkdir nginx proxy
+  shell: mkdir -p /etc/nginx
+
+- name: make nginx config
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+
+- name: make nginx.service
+  copy: src=nginx.service dest=/usr/lib/systemd/system/nginx-proxy.service
+
+- name: run nginx-proxy
+  shell: systemctl daemon-reload &&systemctl enable nginx-proxy &&systemctl start nginx-proxy
+
+- name: wiat download nginx images
+  shell: sleep 20
+
+- name: mkdir kubelet dir
+  shell: mkdir -p /var/lib/kubelet
+
+- name: make kubelet.service
+  template: src=kubelet.service.j2 dest=/usr/lib/systemd/system/kubelet.service
+
+- name: make kubelet.config.json
+  template: src=kubelet.config.json.j2 dest=/etc/kubernetes/kubelet.config.json
+
+- name: run kubelet
+  shell: systemctl daemon-reload &&systemctl enable kubelet &&systemctl start kubelet
+
+- name: make kube-proxy.config.yaml
+  template: src=kube-proxy.config.yaml.j2 dest=/etc/kubernetes/kube-proxy.config.yaml
+
+- name: mkdir kube-proxy dir
+  shell: mkdir -p /var/lib/kube-proxy
+
+- name: copy /etc/kubernetes/kube-proxy.kubeconfig
+  copy: src=/opt/ssl/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
+
+- name: make kube-proxy.service
+  copy: src=kube-proxy.service dest=/usr/lib/systemd/system/kube-proxy.service
+
+- name: run kube-proxy
+  shell: systemctl daemon-reload &&systemctl enable kube-proxy &&systemctl start kube-proxy
+
+- name: run kubelet
+  shell: systemctl daemon-reload &&systemctl enable kubelet &&systemctl start kubelet
+
+
+

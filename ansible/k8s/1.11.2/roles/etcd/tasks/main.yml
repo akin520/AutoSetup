@@ -1,0 +1,31 @@
+---
+- name: mkdir ssl
+  shell: mkdir -p /etc/kubernetes/ssl/
+
+- name: make etcd dir
+  shell: useradd etcd && mkdir -p /opt/etcd && chown -R etcd:etcd /opt/etcd
+  ignore_errors: yes
+
+- name: copy ssl
+  copy: src=/opt/ssl/{{item}} dest=/etc/kubernetes/ssl/{{item}}
+  with_items:
+    - "ca.csr"
+    - "ca-key.pem"
+    - "ca.pem"
+    - "etcd-key.pem"
+    - "etcd.pem"
+
+- name: copy etcd file
+  copy: src={{item}} dest=/usr/bin/{{item}} owner=root group=root mode=755
+  with_items:
+    - "etcd"
+    - "etcdctl"
+
+- name: etcd service
+  template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service
+
+- name: run etcd
+  shell: systemctl daemon-reload &&systemctl enable etcd &&systemctl start etcd
+
+- name: etcd tools
+  template: src=etcd-health.sh.j2 dest=/root/etcd-health.sh mode=755

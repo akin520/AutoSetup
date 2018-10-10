@@ -1,0 +1,40 @@
+{
+  "kind": "KubeletConfiguration",
+  "apiVersion": "kubelet.config.k8s.io/v1beta1",
+  "authentication": {
+    "x509": {
+      "clientCAFile": "/etc/kubernetes/ssl/ca.pem"
+    },
+    "webhook": {
+      "enabled": true,
+      "cacheTTL": "2m0s"
+    },
+    "anonymous": {
+      "enabled": false
+    }
+  },
+  "authorization": {
+    "mode": "Webhook",
+    "webhook": {
+      "cacheAuthorizedTTL": "5m0s",
+      "cacheUnauthorizedTTL": "30s"
+    }
+  },
+  "address": "{{inventory_hostname}}",
+  "port": 10250,
+  "readOnlyPort": 0,
+  "cgroupDriver": "cgroupfs",
+  "hairpinMode": "promiscuous-bridge",
+  "serializeImagePulls": false,
+  "RotateCertificates": true,
+  "featureGates": {
+    "RotateKubeletClientCertificate": true,
+    "RotateKubeletServerCertificate": true
+  },
+  "MaxPods": "512",
+  "failSwapOn": false,
+  "containerLogMaxSize": "10Mi",
+  "containerLogMaxFiles": 5,
+  "clusterDomain": "cluster.local.",
+  "clusterDNS": ["10.254.0.2"]
+}

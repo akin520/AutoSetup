@@ -1,0 +1,87 @@
+---
+- name: make tmp hosts
+  template: src=hosts.j2 dest=/tmp/hosts
+
+- name: cat /etc/hosts|grep hostname
+  shell: cat /etc/hosts|grep {{hostname}}
+  register: result_host
+  ignore_errors: True
+
+#https://blog.csdn.net/kellyseeme/article/details/50619562
+- name: add hosts
+  lineinfile: dest=/etc/hosts state=present line="{{item}}"
+  with_file:
+    - /tmp/hosts
+  when: result_host.rc != 0
+
+- name: del tmp hosts
+  file: path=/tmp/hosts state=absent
+
+- name: yum epel
+  yum: name=epel-release state=present
+
+- name: yum libselinux-python
+  yum: name=libselinux-python state=present
+
+- name: yum yum-utils
+  yum: name=yum-utils state=present
+
+- name: add docker-ce repo
+  shell: yum-config-manager --add-repo http://mirrors.ustc.edu.cn/docker-ce/linux/centos/docker-ce.repo
+
+- name: yum policycoreutils-python
+  yum: name=policycoreutils-python state=present
+
+- name: yum docker-ce-selinux-17.03.3.ce
+  yum: name=docker-ce-selinux-17.03.3.ce state=present
+
+- name: yum docker-ce-17.03.3.ce
+  yum: name=docker-ce-17.03.3.ce state=present
+
+- name: mkdir docker config dir
+  shell: mkdir -p /etc/docker/ && mkdir -p /etc/systemd/system/docker.service.d/ &&mkdir -p /opt/docker
+
+- name: copy docker.service
+  copy: src=docker.service dest=/usr/lib/systemd/system/docker.service
+
+- name: copy daemon.json
+  copy: src=daemon.json dest=/etc/docker/daemon.json
+
+- name: copy docker plugin
+  copy: src={{item}} dest=/etc/systemd/system/docker.service.d/{{item}}
+  with_items:
+    - "docker-options.conf"
+    - "docker-dns.conf"
+    - "flannel.conf"
+    - "iptables.conf"
+
+- name: copy flannel
+  copy: src=flannel-0.10.0-1.x86_64.rpm dest=/tmp/flannel-0.10.0-1.x86_64.rpm
+
+- name: install flannel
+  shell: yum install -y /tmp/flannel-0.10.0-1.x86_64.rpm
+  ignore_errors: yes
+
+- name: rm -rf flannel config
+  shell: rm -rf /usr/lib/systemd/system/docker.service.d/
+
+- name: flannel sysconfig
+  template: src=flanneld.j2 dest=/etc/sysconfig/flanneld
+
+- name: flannel add network
+  template: src=add.sh.j2 dest=/tmp/add.sh
+
+- name: flannel script
+  shell: chmod +x /tmp/add.sh && /tmp/add.sh
+
+- name: run flannel
+  shell: systemctl daemon-reload &&systemctl enable flanneld &&systemctl start flanneld
+
+- name: fix flannel
+  shell: sed -i 's/false/true/' /var/run/flannel/docker
+
+- name: restart flannel
+  shell: systemctl restart flanneld
+
+- name: start docker
+  shell: systemctl daemon-reload &&systemctl enable docker &&systemctl start docker

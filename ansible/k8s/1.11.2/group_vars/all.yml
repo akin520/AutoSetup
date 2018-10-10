@@ -1,0 +1,11 @@
+ansible_ssh_user: root  #用户名
+ansible_ssh_pass: root  #密码
+ansible_ssh_port: 22    #ssh端口
+TMP_NODES: "{% for h in groups['etcd'] %}{{ hostvars[h]['hostname'] }}=https://{{ h }}:2380,{% endfor %}"
+ETCD_NODES: "{{ TMP_NODES.rstrip(',') }}"
+TMP2_NODES: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+ETCD_SH: "{{ TMP2_NODES.rstrip(',') }}"
+CERT_HOST: "{% for h in groups['cert'] %}{{h}}{% endfor %}"
+IFACE: "em1"   #网卡需要指定
+IP: "{{ansible_em1['ipv4']['address']}}"  #网卡需要指定
+IP2: "{{ansible_default_ipv4['address']}}"

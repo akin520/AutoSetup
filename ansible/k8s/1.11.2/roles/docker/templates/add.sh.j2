@@ -1,0 +1,6 @@
+#!/bin/bash
+etcdctl --endpoints={{ETCD_SH}} \
+        --cert-file=/etc/kubernetes/ssl/etcd.pem \
+        --ca-file=/etc/kubernetes/ssl/ca.pem \
+        --key-file=/etc/kubernetes/ssl/etcd-key.pem \
+        set /flannel/network/config '{"Network":"10.254.64.0/18","SubnetLen":24,"Backend":{"Type":"host-gw"}}'

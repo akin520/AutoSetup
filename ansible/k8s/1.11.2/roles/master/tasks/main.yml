@@ -1,0 +1,146 @@
+---
+- name: yum epel
+  yum: name=epel-release state=present
+
+- name: yum libselinux-python
+  yum: name=libselinux-python state=present
+
+- name: ipvs
+  shell: yum install ipset ipvsadm conntrack-tools.x86_64 -y && touch /etc/modprobe.d/ipvs.conf 
+
+- name: ipvs config
+  lineinfile: dest=/etc/modprobe.d/ipvs.conf line='options ip_vs conn_tab_bits=22'
+
+- name: copy k8s file
+  copy: src={{item}} dest=/usr/local/bin/{{item}} mode=755 owner=root group=root
+  with_items:
+    - "kube-apiserver"
+    - "kube-controller-manager"
+    - "kube-scheduler"
+    - "kubectl"
+    - "kube-proxy"
+    - "kubelet"
+    - "kubeadm"
+
+- name: copy ssl
+  copy: src=/opt/ssl/{{item}} dest=/etc/kubernetes/ssl/{{item}}
+  with_items:
+    - "ca.csr"
+    - "ca-key.pem"
+    - "ca.pem"
+    - "etcd-key.pem"
+    - "etcd.pem"
+    - "admin-key.pem"
+    - "admin.pem"
+    - "kube-proxy-key.pem"
+    - "kube-proxy.pem"
+    - "kubernetes-key.pem"
+    - "kubernetes.pem"
+
+- name: copy yaml
+  copy: src={{ item }} dest=//etc/kubernetes/{{item}}
+  with_items:
+    - "encryption-config.yaml"
+    - "audit-policy.yaml"
+
+- name: k8s cluser config 
+  copy: src=k8s_cluster.sh dest=/root/k8s_cluster.sh mode=755
+
+#- name: wait for run /root/k8s_cluster.sh
+#  debug: msg="wait 15s, go to master run /root/k8s_cluster.sh"
+#
+#- name: k8s script wait
+#  shell: sleep 15
+- name: run /root/k8s_cluster.sh script
+  shell: /root/k8s_cluster.sh
+  when: CERT_HOST == IP
+
+- name: ls /var/log/kubernetes/
+  shell: /bin/ls /var/log/kubernetes/
+  register: result_kubernetes
+  ignore_errors: True
+
+- name: mkdir k8s log dir
+  shell: mkdir -p /var/log/kubernetes/
+  when: result_kubernetes.rc != 0
+
+- name: make kube-apiserver.service
+  template: src=kube-apiserver.service.j2 dest=/usr/lib/systemd/system/kube-apiserver.service
+
+- name: run kube-apiserver
+  shell: systemctl daemon-reload &&systemctl enable kube-apiserver &&systemctl start kube-apiserver
+
+- name: make kube-controller-manager.service
+  copy: src=kube-controller-manager.service dest=/usr/lib/systemd/system/kube-controller-manager.service
+
+- name: run kube-controller-manager
+  shell: systemctl daemon-reload &&systemctl enable kube-controller-manager &&systemctl start kube-controller-manager
+
+- name: make kube-scheduler.service
+  copy: src=kube-scheduler.service dest=/usr/lib/systemd/system/kube-scheduler.service
+
+- name: run kube-scheduler
+  shell: systemctl daemon-reload &&systemctl enable kube-scheduler &&systemctl start kube-scheduler
+
+#- name: ls /tmp/rbac
+#  shell: /bin/ls /tmp/rbac
+#  register: result_rbac
+#  ignore_errors: True
+#
+#- name: make rbac
+#  shell: kubectl create clusterrolebinding kube-apiserver:kubelet-apis --clusterrole=system:kubelet-api-admin --user kubernetes && touch /tmp/rbac
+#  when: result_rbac.rc != 0
+#  ignore_errors: True
+
+- name: copy tls-instructs-csr.yaml
+  copy: src=tls-instructs-csr.yaml dest=/etc/kubernetes/tls-instructs-csr.yaml
+
+- name: auto cert script
+  template: src=token.sh.j2 dest=/root/token.sh mode=755 group=root owner=root
+
+#- name: wait for run /root/token.sh
+#  debug: msg="wait 30s, go to master run /root/token.sh"
+#- name: k8s script wait
+#  shell: sleep 30
+- name: run /root/token.sh
+  shell: /root/token.sh
+  when: CERT_HOST == IP
+
+- name: copy bootstrap.kubeconfig
+  copy: src=/opt/ssl/{{inventory_hostname}}.kubeconfig dest=/etc/kubernetes/bootstrap.kubeconfig mode=644
+
+- name: mkdir kubelet dir
+  shell: mkdir -p /var/lib/kubelet
+
+- name: make kubelet.service
+  template: src=kubelet.service.j2 dest=/usr/lib/systemd/system/kubelet.service
+
+- name: make kubelet.config.json
+  template: src=kubelet.config.json.j2 dest=/etc/kubernetes/kubelet.config.json
+
+- name: run kubelet
+  shell: systemctl daemon-reload &&systemctl enable kubelet &&systemctl start kubelet
+
+- name: make kube-proxy.config.yaml
+  template: src=kube-proxy.config.yaml.j2 dest=/etc/kubernetes/kube-proxy.config.yaml
+
+- name: mkdir kube-proxy dir
+  shell: mkdir -p /var/lib/kube-proxy
+
+- name: copy /etc/kubernetes/kube-proxy.kubeconfig
+  copy: src=/opt/ssl/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
+
+- name: make kube-proxy.service
+  copy: src=kube-proxy.service dest=/usr/lib/systemd/system/kube-proxy.service
+
+- name: run kube-proxy
+  shell: systemctl daemon-reload &&systemctl enable kube-proxy &&systemctl start kube-proxy
+
+
+
+
+
+
+
+
+

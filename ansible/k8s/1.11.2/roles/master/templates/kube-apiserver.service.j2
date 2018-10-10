@@ -1,0 +1,48 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/kube-apiserver \
+  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction \
+  --anonymous-auth=false \
+  --experimental-encryption-provider-config=/etc/kubernetes/encryption-config.yaml \
+  --advertise-address={{ inventory_hostname }} \
+  --allow-privileged=true \
+  --apiserver-count=3 \
+  --audit-policy-file=/etc/kubernetes/audit-policy.yaml \
+  --audit-log-maxage=30 \
+  --audit-log-maxbackup=3 \
+  --audit-log-maxsize=100 \
+  --audit-log-path=/var/log/kubernetes/audit.log \
+  --authorization-mode=Node,RBAC \
+  --bind-address=0.0.0.0 \
+  --secure-port=6443 \
+  --client-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --kubelet-client-certificate=/etc/kubernetes/ssl/kubernetes.pem \
+  --kubelet-client-key=/etc/kubernetes/ssl/kubernetes-key.pem \
+  --enable-swagger-ui=true \
+  --etcd-cafile=/etc/kubernetes/ssl/ca.pem \
+  --etcd-certfile=/etc/kubernetes/ssl/etcd.pem \
+  --etcd-keyfile=/etc/kubernetes/ssl/etcd-key.pem \
+  --etcd-servers={{ETCD_SH}} \
+  --event-ttl=1h \
+  --kubelet-https=true \
+  --insecure-bind-address=127.0.0.1 \
+  --insecure-port=8080 \
+  --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem \
+  --service-cluster-ip-range=10.254.0.0/18 \
+  --service-node-port-range=30000-32000 \
+  --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem \
+  --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem \
+  --enable-bootstrap-token-auth \
+  --v=1
+Restart=on-failure
+RestartSec=5
+Type=notify
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

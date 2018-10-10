@@ -1,0 +1,29 @@
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart=/usr/local/bin/kube-controller-manager \
+  --address=0.0.0.0 \
+  --master=http://127.0.0.1:8080 \
+  --allocate-node-cidrs=true \
+  --service-cluster-ip-range=10.254.0.0/18 \
+  --cluster-cidr=10.254.64.0/18 \
+  --cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem \
+  --cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem \
+  --feature-gates=RotateKubeletServerCertificate=true \
+  --controllers=*,tokencleaner,bootstrapsigner \
+  --experimental-cluster-signing-duration=86700h0m0s \
+  --cluster-name=kubernetes \
+  --service-account-private-key-file=/etc/kubernetes/ssl/ca-key.pem \
+  --root-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --leader-elect=true \
+  --node-monitor-grace-period=40s \
+  --node-monitor-period=5s \
+  --pod-eviction-timeout=5m0s \
+  --v=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

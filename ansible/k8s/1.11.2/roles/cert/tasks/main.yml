@@ -1,0 +1,52 @@
+---
+- name: mkdir ssl dir
+  shell: mkdir -p /opt/ssl/
+
+- name: yum libselinux-python
+  yum: name=libselinux-python state=present
+
+- name: yum epel
+  yum: name=epel-release state=present
+
+- name: yum wget
+  yum: name=wget state=present
+
+- name: install ssl tools
+  shell: wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 && mv cfssl_linux-amd64 /usr/bin/cfssl&& wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64&& mv cfssljson_linux-amd64 /usr/bin/cfssljson&& wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64&& mv cfssl-certinfo_linux-amd64 /usr/bin/cfssl-certinfo&& chmod +x /usr/bin/cfssl*
+
+- name: copy config.json
+  copy: src=config.json dest=/opt/ssl/config.json
+
+- name: copy csr.json
+  copy: src=csr.json dest=/opt/ssl/csr.json
+
+- name: make ca
+  shell: cd /opt/ssl/ && /usr/bin/cfssl gencert -initca csr.json | /usr/bin/cfssljson -bare ca
+
+- name: etcd-csr.json
+  template: src=etcd-csr.json.j2 dest=/opt/ssl/etcd-csr.json
+
+- name: make etcd ssl
+  shell: cd /opt/ssl/ && /usr/bin/cfssl gencert -ca=/opt/ssl/ca.pem -ca-key=/opt/ssl/ca-key.pem -config=/opt/ssl/config.json -profile=kubernetes etcd-csr.json | /usr/bin/cfssljson -bare etcd
+
+- name: copy admin-csr.json
+  copy: src=admin-csr.json dest=/opt/ssl/admin-csr.json
+
+- name: make admin ssl
+  shell: cd /opt/ssl/ && /usr/bin/cfssl gencert -ca=/opt/ssl/ca.pem -ca-key=/opt/ssl/ca-key.pem -config=/opt/ssl/config.json -profile=kubernetes admin-csr.json | /usr/bin/cfssljson -bare admin
+
+- name: kubernetes-csr.json
+  template: src=kubernetes-csr.json.j2 dest=/opt/ssl/kubernetes-csr.json
+
+- name: make kubernetes ssl
+  shell: cd /opt/ssl && /usr/bin/cfssl gencert -ca=/opt/ssl/ca.pem -ca-key=/opt/ssl/ca-key.pem -config=/opt/ssl/config.json -profile=kubernetes kubernetes-csr.json | /usr/bin/cfssljson -bare kubernetes
+
+- name: copy kube-proxy-csr.json
+  copy: src=kube-proxy-csr.json dest=/opt/ssl/kube-proxy-csr.json
+
+- name: make kube-proxy ssl
+  shell: cd /opt/ssl/ && /usr/bin/cfssl gencert -ca=/opt/ssl/ca.pem -ca-key=/opt/ssl/ca-key.pem -config=/opt/ssl/config.json -profile=kubernetes  kube-proxy-csr.json | /usr/bin/cfssljson -bare kube-proxy
+
+
+
+
