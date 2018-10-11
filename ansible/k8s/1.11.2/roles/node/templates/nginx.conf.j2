@@ -10,7 +10,7 @@ events {
 stream {
     upstream kube_apiserver {
         least_conn;
-{% for h in groups['docker'] %}
+{% for h in groups['master'] %}
         server {{ h }}:6443;
 {% endfor %}
     }
