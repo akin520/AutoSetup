@@ -19,4 +19,7 @@ hosts中添加
 ansible-playbook -i hosts 05.node.yml --limit 192.168.20.214
 `
   
-
+4.升级K8S 1.11.5    
+`cd roles/master/files/&& bash -x 1.11.5.sh    `
+`ansible-playbook -i hosts 04.master.yml --tags update    `
+`ansible-playbook -i hosts 05.node.yml --tags update`

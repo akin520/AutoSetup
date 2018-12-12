@@ -137,7 +137,29 @@
   shell: systemctl daemon-reload &&systemctl enable kube-proxy &&systemctl start kube-proxy
 
 
+- name: update k8s file
+  copy: src=1.11.5/{{item}} dest=/usr/local/bin/{{item}} mode=755 owner=root group=root
+  with_items:
+    - "kube-apiserver"
+    - "kube-controller-manager"
+    - "kube-scheduler"
+    - "kubectl"
+    - "kube-proxy"
+    - "kubelet"
+    - "kubeadm"
+  tags:
+    - update
 
+- name: restart k8s service
+  shell: systemctl daemon-reload && systemctl restart {{item}}
+  with_items:
+    - "kube-apiserver"
+    - "kube-controller-manager"
+    - "kube-scheduler"
+    - "kubelet"
+    - "kube-proxy"
+  tags:
+    - update
 
 
 

@@ -94,4 +94,19 @@
   shell: systemctl daemon-reload &&systemctl enable kubelet &&systemctl start kubelet
 
 
+- name: update k8s file
+  copy: src=1.11.5/{{item}} dest=/usr/local/bin/{{item}} mode=755 owner=root group=root
+  with_items:
+    - "kubectl"
+    - "kube-proxy"
+    - "kubelet"
+  tags:
+    - update
 
+- name: restart k8s service
+  shell: systemctl daemon-reload && systemctl restart {{item}}
+  with_items:
+    - "kubelet"
+    - "kube-proxy"
+  tags:
+    - update
