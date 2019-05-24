@@ -50,6 +50,7 @@ sed -i 's/#protocols = imap pop3 lmtp/protocols = imap pop3 lmtp/g' /etc/dovecot
 sed -i 's/#   mail_location = maildir\:\~\/Maildir/mail_location = maildir\:\~\/Maildir/g' /etc/dovecot/conf.d/10-mail.conf
 #disabled ssl
 sed -i 's/#disable_plaintext_auth = yes/disable_plaintext_auth = no/g' /etc/dovecot/conf.d/10-auth.conf
+sed -i 's/auth_mechanisms = plain/auth_mechanisms = plain login/g' /etc/dovecot/conf.d/10-auth.conf
 sed -i 's/ssl = required/ssl = no/g' /etc/dovecot/conf.d/10-ssl.conf 
 #postfix auth
 sed -i '/Postfix smtp-auth/a\  unix_listener /var/spool/postfix/private/auth {\n    mode=06666\n    user = postfix\n    group = postfix\n  }' /etc/dovecot/conf.d/10-master.conf 
