@@ -236,7 +236,7 @@ yum -y install perl-DBD-mysql perl-ExtUtils-MakeMaker perl-Unix-Syslog rrdtool-p
 mkdir -p /var/www/extsuite
 tar xf extmail-1.2.tar.gz -C /var/www/extsuite/
 mv /var/www/extsuite/extmail-1.2/ /var/www/extsuite/extmail
-cd cd /var/www/extsuite/extmail/cgi/
+cd /var/www/extsuite/extmail/cgi/
 sed -i 's/wT/w/g' *.cgi
 cd /var/www/extsuite/extmail
 cp webmail.cf.default webmail.cf
