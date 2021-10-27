@@ -9,4 +9,3 @@ baseurl=https://vault.centos.org/$version/os/x86_64/
 gpgcheck=1
 gpgkey=https://vault.centos.org/$version/os/x86_64/RPM-GPG-KEY-CentOS-6
 EOF
-
